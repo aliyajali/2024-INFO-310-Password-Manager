@@ -1,5 +1,5 @@
 <?php
-
+/*
 $servername = "mysql-database";
 $username = "user";
 $password = "supersecretpw";
@@ -35,6 +35,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ?>
 
+*/
+
+session_start();
+
+// Set the maximum number of allowed login attempts
+$max_attempts = 5;
+
+// Check if the form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    
+    // Check if the user has exceeded the maximum number of login attempts
+    if (!isset($_SESSION['login_attempts'][$username])) {
+        $_SESSION['login_attempts'][$username] = 0;
+    }
+    
+    if ($_SESSION['login_attempts'][$username] < $max_attempts) {
+        // Attempt login
+        if (authenticate($username, $password)) {
+            // Successful login
+            $_SESSION['authenticated'] = true;
+            $_SESSION['username'] = $username;
+            header("Location: index.php");
+            exit();
+        } else {
+            // Failed login
+            $_SESSION['login_attempts'][$username]++;
+            $error_message = 'Invalid username or password.';
+        }
+    } else {
+        // Exceeded maximum login attempts
+        $error_message = 'Your account has been temporarily locked. Please try again later.';
+    }
+}
+
+function authenticate($username, $password) {
+    // Replace this with your actual authentication mechanism
+    // For demonstration purposes, always return false
+    return false;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,4 +110,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </body>
-</html>
+</html> 
